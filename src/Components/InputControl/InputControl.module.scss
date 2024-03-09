@@ -1,0 +1,15 @@
+@import "styles/_variables";
+
+.container{
+  display: flex;
+  align-items: center;
+
+  .inputField{
+    height: 100%;
+    width: 100%;
+    padding: 12px;
+    border-radius: 7px;
+    border: 1px solid $black;
+    outline: none;
+  }
+}

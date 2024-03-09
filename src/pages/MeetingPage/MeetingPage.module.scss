@@ -1,0 +1,22 @@
+@import "../../styles/variables";
+
+.mainPage{
+  width: 100%;
+  height: 100vh;
+  padding: 5px;
+  .meetingContainer{
+    width: 100%;
+    height: 100%;
+    // background-color: black;
+
+    .webcamContainer{
+      position: relative;
+      .videoCam{
+        background-size: contain;
+      }
+    }
+    .toolbox{
+      position: absolute;
+    }
+  }
+}

@@ -1,0 +1,21 @@
+@import '../../styles/variables';
+
+.mainContainer{
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $light-blue;
+
+  .container{
+    .btnBox{
+      .longButton{
+        width: 100%;
+      }
+    }
+
+  }
+}
+
+
+
