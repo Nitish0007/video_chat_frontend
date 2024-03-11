@@ -1,38 +1,53 @@
-import React, { useState } from 'react'
-import SelfCamera from 'Components/SelfCamera/SelfCamera'
-import { Video, VideoOff, Mic, MicOff } from 'react-feather';
+import React, { useState, useEffect } from "react";
+import { socket } from '../../socket'
+import SelfCamera from "Components/SelfCamera/SelfCamera";
+import { Video, VideoOff, Mic, MicOff } from "react-feather";
 
-import styles from './MeetingPage.module.scss'
+import styles from "./MeetingPage.module.scss";
 
 function MeetingPage() {
-  const [mic, setMic] = useState(true);
-  const [video, setVideo] = useState(true);
+  const [controls, setControls] = useState({
+    micOn: false,
+    videoOn: false,
+  });
 
-  const toggleMic = () => {
-    setMic(!mic)
-  }
-
-  const toggleVideo = () => {
-    setVideo(!video)
-  }
+  useEffect(() => {
+    
+    socket.emit("MAKE_CALL", 'your friend is calling')
+    
+  },[])
 
   return (
     <div className={styles.mainPage}>
       <div className={styles.meetingContainer}>
         <div className={styles.webcamContainer}>
-          <SelfCamera className={styles.videoCam} audio={mic} video={video} handleVideoFromChild={toggleVideo} handleAudioFromChild={toggleMic} />
+          <SelfCamera
+            className={styles.videoCam}
+            useAudio={controls.micOn}
+            useVideo={controls.videoOn}
+          />
         </div>
         <div className={styles.toolbox}>
-          {
-            video ? (<Video onClick={toggleVideo} />) : (<VideoOff onClick={toggleVideo} />) 
-          }
-          {
-            mic ? (<Mic onClick={toggleMic} />) : (<MicOff onClick={toggleMic} />)
-          }
+          <div
+            className={styles.icon}
+            onClick={() =>
+              setControls((prev) => ({ ...prev, videoOn: !prev.videoOn }))
+            }
+          >
+            {controls.videoOn ? <Video /> : <VideoOff />}
+          </div>
+          <div
+            className={styles.icon}
+            onClick={() =>
+              setControls((prev) => ({ ...prev, micOn: !prev.micOn }))
+            }
+          >
+            {controls.micOn ? <Mic /> : <MicOff />}
+          </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default MeetingPage
+export default MeetingPage;

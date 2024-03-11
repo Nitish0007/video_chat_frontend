@@ -1,235 +1,130 @@
-import React, {useEffect, useRef, useMemo, useState} from 'react'
-import ReactPlayer from 'react-player';
-import { Video, VideoOff, Mic, MicOff } from 'react-feather';
+import React, { useRef, useState } from "react";
+import { Video, VideoOff, Mic, MicOff } from "react-feather";
 
-import styles from './SelfCamera.module.scss'
+import styles from "./SelfCamera.module.scss";
 
-const SelfCamera = (props) => {
-  const [video, setVideo] = useState(false)
-  const [audio, setAudio] = useState(false)
-  // const [videoStream, setVideoStream] = useState(null)
-  // const [audioStream, setAudioStream] = useState(null)
-
-  const videoStreamRef = useRef();
-  const audioStreamRef = useRef();
+const SelfCamera = ({ useAudio = false, useVideo = false }) => {
+  const [cameraSettings, setCameraSettings] = useState({
+    audio: useAudio || false,
+    video: useVideo || false,
+    width: '497px',
+    height: '280px'
+  });
+  const [constraints, setConstraints] = useState({
+    video: {
+      width: { min: 640, ideal: 1920 },
+      height: { min: 400, ideal: 1080 },
+      aspectRatio: { ideal: 1.7777777778 },
+    },
+    audio: {
+      sampleSize: 16,
+      channelCount: 2,
+    }
+  })
   const streamRef = useRef();
-
-  function stopBothVideoAndAudio(stream) {
-    if(!stream) return
-    stream.getTracks().forEach((track) => {
-      if (track.readyState == "live") {
-        track.stop();
-      }
-    });
-  }
+  const videoElemRef = useRef();
 
   // stop only camera
   function stopVideoOnly(stream) {
-    if(!stream) return
+    if (!stream) return;
     stream.getTracks().forEach((track) => {
       if (track.readyState == "live" && track.kind === "video") {
         track.stop();
       }
     });
+
+    if (!cameraSettings.audio) streamRef.current = null;
   }
 
-  // stop only mic
+  // stop only audio
   function stopAudioOnly(stream) {
-    if(!stream) return
+    if (!stream) return;
     stream.getTracks().forEach((track) => {
       if (track.readyState == "live" && track.kind === "audio") {
         track.stop();
       }
     });
+
+    if (!cameraSettings.video) streamRef.current = null;
   }
 
-  const calculateVideoStream = async () => {
+  const calculateStream = async ({ useAudio = false, useVideo = false }) => {
     let navigator = window.navigator;
 
     if (!navigator.mediaDevices && !navigator.mediaDevices.getUserMedia) {
-      return console.error("Browser does not support media devices");
+      return console.error("Unable to access media devices");
     }
 
     try {
       const myStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: useVideo,
+        audio: useAudio
       });
 
-      videoStreamRef.current = myStream;
-      setVideo(!video)
-      console.log(videoStreamRef.current)
-    } catch (error) {
-      console.log("Error accessing video", error);
-    }
-  };
-
-  const calculateAudioStream = async () => {
-    let navigator = window.navigator;
-
-    if (!navigator.mediaDevices && !navigator.mediaDevices.getUserMedia) {
-      return console.error("Browser does not support media devices");
-    }
-
-    try {
-      const myStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
-      console.log(myStream)
-      audioStreamRef.current = myStream;
-    } catch (error) {
-      console.log("Error accessing video", error);
-    }
-  };
-
-  const calculateBothAudioAndVideoStream = async () => {
-    let navigator = window.navigator;
-
-    if (!navigator.mediaDevices && !navigator.mediaDevices.getUserMedia) {
-      return console.error("Browser does not support media devices");
-    }
-
-    try {
-      const myStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: true
-      });
-      console.log(myStream)
+      // myStream.getTracks.forEach((track) => {
+      //   if (track.readyState == "live" && track.kind === "video") {
+      //     track.applyConstraints(constraints.video);
+      //   }
+      //   else if (track.readyState == "live" && track.kind === "audio") {
+      //     track.applyConstraints(constraints.audio);
+      //   }
+      // })
+      
+      videoElemRef.current.srcObject = myStream
+      videoElemRef.current.play()
       streamRef.current = myStream;
     } catch (error) {
-      console.log("Error accessing media devices", error);
+      console.log("Error accessing video", error);
     }
-  }
+  };
 
-  // const handleVideoStream = useMemo(async () => {
-  //   let navigator = window.navigator
+  const toggleVideo = async () => {
+    if (cameraSettings.video) stopVideoOnly(streamRef.current);
+    else
+      await calculateStream({
+        useVideo: true,
+        useAudio: cameraSettings.audio,
+      });
 
-  //   if(!navigator.mediaDevices && !navigator.mediaDevices.getUserMedia){
-  //     return console.error("Browser does not support media devices");
-  //   }
+    setCameraSettings((prev) => ({ ...prev, video: !prev.video }));
+  };
 
-  //   if(video){
-  //     console.log("only video")
-  //     try{
-  //       const myStream = await navigator.mediaDevices.getUserMedia({video: true})
-  //         console.log(myStream)
-  //         setVideoStream(myStream)
-  //       }
-  //     catch(error){
-  //       console.log("Error accessing camera: ",error)
-  //     }
-  //   }
-  //   else{
-  //     console.log("no video")
-  //     setVideoStream(null)
-  //   }
-  // }, [video])
+  const toggleAudio = async () => {
+    if (cameraSettings.audio) stopAudioOnly(streamRef.current);
+    else
+      await calculateStream({
+        useAudio: true,
+        useVideo: cameraSettings.video,
+      });
 
-  // const handleAudioStream = useMemo(async () => {
-  //   let navigator = window.navigator
-
-  //   if(!navigator.mediaDevices && !navigator.mediaDevices.getUserMedia){
-  //     return console.error("Browser does not support media devices");
-  //   }
-
-  //   if(audio){
-  //     console.log("only audio")
-  //     try{
-  //       const myStream = await navigator.mediaDevices.getUserMedia({audio: true})
-  //         console.log(myStream)
-  //         setAudioStream(myStream)
-  //       }
-  //     catch(error){
-  //       console.log("Error accessing mic: ",error)
-  //     }
-  //   }
-  //   else{
-  //     console.log("no audio")
-  //     setAudioStream(null)
-  //   }
-  // }, [audio])
-
-  const toggleVideo = () => {
-    calculateVideoStream()
-  }
-
-  const toggleAudio= () => {
-    setAudio(!audio)
-  }
-
-  useEffect(() => {
-    if (audio && video) calculateBothAudioAndVideoStream();
-    else if(audio && !video){
-      calculateAudioStream();
-      stopVideoOnly(videoStreamRef.current);
-    }
-    else if(video && !audio){
-      calculateVideoStream();
-      stopAudioOnly(audioStreamRef.current);
-    }
-    else stopBothVideoAndAudio(streamRef.current);
-  }, [audio, video]);
-
-  // useEffect(() => {
-  //   toggleVideo();
-  // }, [props.video])
-
-  // useEffect(() => {
-  //   toggleAudio();
-  // }, [props.audio])
-
+    setCameraSettings((prev) => ({ ...prev, audio: !prev.audio }));
+  };
 
   return (
-    <div className={styles.cameraContainer} >
-      {
-        videoStreamRef.current ? (
-          audioStreamRef.current ? ( 
-          <ReactPlayer className={styles.playerStyle} url={streamRef.current} playing height='260px' width='340px' /> 
-          ) : (
-          <ReactPlayer className={styles.playerStyle} url={videoStreamRef.current} playing height='260px' width='340px' />
-          )
-        ) 
-        : 
-        // (
-          // audioStreamRef.current ?
-          // <ReactPlayer className={styles.playerStyle} url={audioStreamRef.current} playing height='260px' width='340px' />
-          // :
-          // (
-            <div className={styles.noVideo}>
-              <div className={styles.nameContainer}>
-                <p>N</p>
-              </div>
+    <div className={styles.cameraContainer}>
+      <div className={styles.videoPlayer}>
+        <video className={`${styles.videoPlayer} ${!cameraSettings.video ? styles.hide : ""}`} ref = {videoElemRef} ></video>
+        <div className={`${styles.videoPlayer} ${cameraSettings.video ? styles.hide : ""}`}>
+          <div className={styles.noVideo}>
+            <div className={styles.nameContainer}>
+              <p>N</p>
             </div>
-        //   )
-        // )
-      }
+          </div>
+        </div>
+      </div>
       <div className={styles.controlsContainer}>
         <div className={styles.controlsBox}>
-          {
-            video ? (
-              <div className={styles.icon} onClick={toggleVideo} >
-                <Video />
-              </div>
-            ) : (
-              <div className={styles.icon} onClick={toggleVideo}>
-                <VideoOff />
-            </div>
-            ) 
-          }
-          {
-            audio ? (
-              <div className={styles.icon} onClick={toggleAudio}>
-                <Mic />
-              </div>
-            ) : (
-              <div className={styles.icon} onClick={toggleAudio}>
-                <MicOff />
-              </div>
-            )
-          }
+          <div className={styles.icon} onClick={toggleVideo}>
+            {cameraSettings.video ? <Video /> : <VideoOff />}
+          </div>
+
+          <div className={styles.icon} onClick={toggleAudio}>
+            {cameraSettings.audio ? <Mic /> : <MicOff />}
+          </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SelfCamera
+export default SelfCamera;
