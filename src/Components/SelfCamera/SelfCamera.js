@@ -1,9 +1,14 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Video, VideoOff, Mic, MicOff } from "react-feather";
+import { useSelector, useDispatch } from "react-redux";
+
+import { updateStream } from "../../redux/features/stream/streamSlice";
 
 import styles from "./SelfCamera.module.scss";
 
-const SelfCamera = ({ useAudio = false, useVideo = false }) => {
+const SelfCamera = ({ useAudio = false, useVideo = false}) => {
+  const globalStream = useSelector((state) => state.stream)
+  const dispatch = useDispatch();
   const [cameraSettings, setCameraSettings] = useState({
     audio: useAudio || false,
     video: useVideo || false,
@@ -60,21 +65,12 @@ const SelfCamera = ({ useAudio = false, useVideo = false }) => {
         video: useVideo,
         audio: useAudio
       });
-
-      // myStream.getTracks.forEach((track) => {
-      //   if (track.readyState == "live" && track.kind === "video") {
-      //     track.applyConstraints(constraints.video);
-      //   }
-      //   else if (track.readyState == "live" && track.kind === "audio") {
-      //     track.applyConstraints(constraints.audio);
-      //   }
-      // })
       
       videoElemRef.current.srcObject = myStream
       videoElemRef.current.play()
       streamRef.current = myStream;
     } catch (error) {
-      console.log("Error accessing video", error);
+      console.error("Error accessing video", error);
     }
   };
 

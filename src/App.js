@@ -1,13 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import HomePage from './pages/HomePage/HomePage.jsx';
+import HomePage from './pages/HomePage/HomePage.js';
 
 import styles from './styles/main.module.scss'
 import MeetingPage from 'pages/MeetingPage/MeetingPage.js';
 import SelfCamera from 'Components/SelfCamera/SelfCamera.js';
 
 function App() {
+
   return (
     <div className={styles.app}>
       <Router>
