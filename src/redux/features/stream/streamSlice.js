@@ -1,9 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { v4 as uuidv4 } from 'uuid';
 
 const initialState = {
-  // roomId: "",
+  userId: sessionStorage.getItem('userId') || null,
+  roomId: null,
   videoOn: false,
-  micOn: false
+  micOn: false,
+  usersJoined: []
 }
 
 export const streamSlice = createSlice({
@@ -20,12 +23,23 @@ export const streamSlice = createSlice({
     toggleVideo: (state, action) => {
       state.videoOn = action.payload
     },
-    toggleMic :(state, action) => {
+    toggleMic: (state, action) => {
       state.micOn = action.payload
+    },
+    setUserId: (state) => {
+      if(!state.userId){
+        const newUserId = uuidv4();
+        sessionStorage.setItem('userId', newUserId);
+        state.userId = newUserId;
+      }
+    },
+    setRoomId: (state, action) => {
+      console.log(state.roomId, action)
+      state.roomId = action.payload
     }
   },
 })
 
-export const { updateStream, toggleVideo, toggleMic } = streamSlice.actions
+export const { updateStream, toggleVideo, toggleMic, setUserId, setRoomId } = streamSlice.actions
 
 export default streamSlice.reducer

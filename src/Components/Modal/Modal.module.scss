@@ -1,9 +1,22 @@
 @import '../../styles/_variables';
 
 .modal{
-  // position: absolute;
+  position: absolute;
   display: flex;
-  height: 100px;
-  width: 100px;
-  background-color: aqua;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 12px;
+  top: 50vh;
+  left: 50vw;
+  padding: 10px 30px;
+  border: 0.1px solid black;
+  background-color: $white;
+  box-shadow: 7px 0px 15px -10px rgba(0,0,0,0.75);
+  .btnContainer{
+    display: flex;
+    gap: 5px;
+    .btnStyle{
+      padding: 3px 23px;
+    }
+  }
 }

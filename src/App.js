@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import { useDispatch } from 'react-redux';
+
+import { setUserId } from './redux/features/stream/streamSlice.js';
 
 import HomePage from './pages/HomePage/HomePage.js';
 
@@ -8,7 +12,10 @@ import MeetingPage from 'pages/MeetingPage/MeetingPage.js';
 import SelfCamera from 'Components/SelfCamera/SelfCamera.js';
 
 function App() {
-
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(setUserId())
+  }, [])
   return (
     <div className={styles.app}>
       <Router>
